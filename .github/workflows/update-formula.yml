@@ -1,0 +1,62 @@
+name: Update chuck-data formula
+
+on:
+  repository_dispatch:
+    types: [update-chuck-data-formula]
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        id: vars
+        run: |
+          VERSION=${{ github.event.client_payload.version }}
+          # Remove 'v' prefix if present
+          VERSION=${VERSION#v}
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Get PyPI package info
+        run: |
+          # Get PyPI package info and extract SHA256
+          PYPI_INFO=$(curl -s "https://pypi.org/pypi/chuck-data/${{ env.VERSION }}/json")
+          SHA256=$(echo "$PYPI_INFO" | jq -r '.urls[] | select(.packagetype=="sdist") | .digests.sha256')
+          echo "SHA256=$SHA256" >> "$GITHUB_ENV"
+
+      - name: Update Formula
+        run: |
+          sed -i "s/version \".*\"/version \"${{ env.VERSION }}\"/" Formula/chuck-data.rb
+          sed -i "s/sha256 \".*\"/sha256 \"${{ env.SHA256 }}\"/" Formula/chuck-data.rb
+
+      - name: Test formula works
+        run: |
+          brew install --formula ./Formula/chuck-data.rb
+          chuck --version
+          chuck --help
+          brew uninstall chuck-data
+
+      - name: Commit and push
+        run: |
+          git config user.name "Formula Bot"
+          git config user.email "bot@amperity.com"
+          git checkout -b bump-chuck-data-${{ env.VERSION }}
+          git add Formula/chuck-data.rb
+          git commit -m "Bump chuck-data to ${{ env.VERSION }}"
+          git push origin bump-chuck-data-${{ env.VERSION }}
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.RELEASE_UPDATE_TOKEN }}
+          title: "Update chuck-data formula to ${{ env.VERSION }}"
+          body: "Automated formula update for version ${{ env.VERSION }}"
+          base: main
+
+      - name: Enable auto-merge
+        run: |
+          gh pr merge bump-chuck-data-${{ env.VERSION }} --auto --squash
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_UPDATE_TOKEN }}
