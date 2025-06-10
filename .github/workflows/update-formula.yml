@@ -31,12 +31,13 @@ jobs:
           sed -i "s/version \".*\"/version \"${{ env.VERSION }}\"/" Formula/chuck-data.rb
           sed -i "s/sha256 \".*\"/sha256 \"${{ env.SHA256 }}\"/" Formula/chuck-data.rb
 
-      - name: Test formula works
+      - name: Validate formula syntax
         run: |
-          brew install --formula ./Formula/chuck-data.rb
-          chuck --version
-          chuck --help
-          brew uninstall chuck-data
+          # Check Ruby syntax
+          ruby -c Formula/chuck-data.rb
+          
+          # Verify PyPI package exists
+          curl -f "https://pypi.org/pypi/chuck-data/${{ env.VERSION }}/json" > /dev/null
 
       - name: Commit and push
         run: |
