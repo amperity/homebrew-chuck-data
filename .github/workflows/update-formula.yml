@@ -39,25 +39,20 @@ jobs:
           # Verify PyPI package exists
           curl -f "https://pypi.org/pypi/chuck-data/${{ env.VERSION }}/json" > /dev/null
 
-      - name: Commit and push
-        run: |
-          git config user.name "Formula Bot"
-          git config user.email "bot@amperity.com"
-          git checkout -b bump-chuck-data-${{ env.VERSION }}
-          git add Formula/chuck-data.rb
-          git commit -m "Bump chuck-data to ${{ env.VERSION }}"
-          git push origin bump-chuck-data-${{ env.VERSION }}
-
       - name: Create pull request
         uses: peter-evans/create-pull-request@v5
+        id: cpr
         with:
           token: ${{ secrets.RELEASE_UPDATE_TOKEN }}
+          commit-message: "Bump chuck-data to ${{ env.VERSION }}"
           title: "Update chuck-data formula to ${{ env.VERSION }}"
           body: "Automated formula update for version ${{ env.VERSION }}"
+          branch: bump-chuck-data-${{ env.VERSION }}
           base: main
 
       - name: Enable auto-merge
+        if: steps.cpr.outputs.pull-request-number
         run: |
-          gh pr merge bump-chuck-data-${{ env.VERSION }} --auto --squash
+          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --auto --squash
         env:
           GH_TOKEN: ${{ secrets.RELEASE_UPDATE_TOKEN }}
