@@ -11,11 +11,10 @@ class ChuckData < Formula
   depends_on "python@3.12"
 
   def install
-    ENV.append "LDFLAGS", "-Wl,-headerpad_max_install_names"
     virtualenv_create(libexec, "python3.12")
     virtualenv = libexec/"bin/python"
     system virtualenv, "-m", "pip", "install", "--upgrade", "pip"
-    system virtualenv, "-m", "pip", "install", "--no-binary", ":all:", "chuck-data==#{version}"
+    system virtualenv, "-m", "pip", "install", "chuck-data==#{version}"
     (bin/"chuck").write_env_script libexec/"bin/chuck", PYTHONPATH: libexec/Language::Python.site_packages("python3.12")
   end
 
