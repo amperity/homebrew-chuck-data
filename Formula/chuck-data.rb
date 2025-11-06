@@ -11,15 +11,7 @@ class ChuckData < Formula
   depends_on "python@3.12"
 
   def install
-    ENV.prepend_create_path "PYTHONPATH", libexec/"lib/python3.12/site-packages"
-    system "python3.12", "-m", "pip", "install", "--target=#{libexec}/lib/python3.12/site-packages", "chuck-data==#{version}"
-    
-    # Create wrapper script
-    (bin/"chuck").write <<~EOS
-      #!/bin/bash
-      export PYTHONPATH="#{libexec}/lib/python3.12/site-packages:$PYTHONPATH"
-      exec python3.12 -m chuck_data "$@"
-    EOS
+    virtualenv_install_with_resources
   end
 
   test do
