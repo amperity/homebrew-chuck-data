@@ -11,7 +11,11 @@ class ChuckData < Formula
   depends_on "python@3.12"
 
   def install
-    virtualenv_install_with_resources
+    virtualenv_create(libexec, "python3.12")
+    virtualenv = libexec/"bin/python"
+    system virtualenv, "-m", "pip", "install", "--upgrade", "pip"
+    system virtualenv, "-m", "pip", "install", "chuck-data==#{version}"
+    (bin/"chuck").write_env_script libexec/"bin/chuck", PYTHONPATH: libexec/Language::Python.site_packages("python3.12")
   end
 
   test do
