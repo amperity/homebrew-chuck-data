@@ -14,7 +14,7 @@ class ChuckData < Formula
     virtualenv_create(libexec, "python3.12")
     virtualenv = libexec/"bin/python"
     system virtualenv, "-m", "pip", "install", "--upgrade", "pip"
-    system virtualenv, "-m", "pip", "install", "chuck-data==#{version}"
+    system virtualenv, "-m", "pip", "install", "chuck-data[aws]==#{version}"
     (bin/"chuck").write_env_script libexec/"bin/chuck", PYTHONPATH: libexec/Language::Python.site_packages("python3.12")
   end
 
