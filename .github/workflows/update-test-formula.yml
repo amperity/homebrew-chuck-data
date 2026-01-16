@@ -10,8 +10,6 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
-        with:
-          ref: test-pypi  # Check out the test-pypi branch
 
       - name: Extract version
         id: vars
@@ -66,6 +64,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add Formula/chuck-data-test.rb
           git commit --allow-empty -m "Update chuck-data-test to ${{ env.VERSION }}"
-          git push origin test-pypi
+          git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
