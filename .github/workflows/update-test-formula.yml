@@ -65,7 +65,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add Formula/chuck-data-test.rb
-          git commit -m "Update chuck-data-test to ${{ env.VERSION }}"
+          git commit --allow-empty -m "Update chuck-data-test to ${{ env.VERSION }}"
           git push origin test-pypi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
