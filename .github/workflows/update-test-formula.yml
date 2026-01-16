@@ -26,30 +26,22 @@ jobs:
           # Wait a bit for package to be available on test.pypi
           sleep 30
 
-          # Get TestPyPI package info and extract SHA256 and URL
+          # Get TestPyPI package info and extract SHA256
           PYPI_INFO=$(curl -s "https://test.pypi.org/pypi/chuck-data/${{ env.VERSION }}/json")
           SHA256=$(echo "$PYPI_INFO" | jq -r '.urls[] | select(.packagetype=="sdist") | .digests.sha256')
-          URL=$(echo "$PYPI_INFO" | jq -r '.urls[] | select(.packagetype=="sdist") | .url')
 
-          # If SHA256 or URL is empty or null, fail
+          # If SHA256 is empty or null, fail
           if [ -z "$SHA256" ] || [ "$SHA256" = "null" ]; then
             echo "Failed to get SHA256 from test.pypi for version ${{ env.VERSION }}"
             echo "Package may not be available yet or version doesn't exist"
             exit 1
           fi
 
-          if [ -z "$URL" ] || [ "$URL" = "null" ]; then
-            echo "Failed to get URL from test.pypi for version ${{ env.VERSION }}"
-            exit 1
-          fi
-
           echo "SHA256=$SHA256" >> "$GITHUB_ENV"
-          echo "URL=$URL" >> "$GITHUB_ENV"
 
       - name: Update Formula
         run: |
           sed -i "s/version \".*\"/version \"${{ env.VERSION }}\"/" Formula/chuck-data-test.rb
-          sed -i "s|url \".*\"|url \"${{ env.URL }}\"|" Formula/chuck-data-test.rb
           sed -i "s/sha256 \".*\"/sha256 \"${{ env.SHA256 }}\"/" Formula/chuck-data-test.rb
 
       - name: Validate formula syntax
