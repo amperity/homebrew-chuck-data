@@ -15,7 +15,7 @@ class ChuckDataTest < Formula
     virtualenv = libexec/"bin/python"
     system virtualenv, "-m", "pip", "install", "--upgrade", "pip"
     # Install from test.pypi with fallback to regular pypi for dependencies
-    system virtualenv, "-m", "pip", "install", "--index-url", "https://test.pypi.org/simple/", "chuck-data[aws]==#{version}"
+    system virtualenv, "-m", "pip", "install", "--index-url", "https://test.pypi.org/simple/", "--extra-index-url", "https://pypi.org/simple", "chuck-data[aws]==#{version}"
     (bin/"chuck").write_env_script libexec/"bin/chuck", PYTHONPATH: libexec/Language::Python.site_packages("python3.12")
   end
 
