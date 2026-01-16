@@ -1,0 +1,71 @@
+name: Update chuck-data-test formula
+
+on:
+  repository_dispatch:
+    types: [update-chuck-data-test-formula]
+
+jobs:
+  bump-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          ref: test-pypi  # Check out the test-pypi branch
+
+      - name: Extract version
+        id: vars
+        run: |
+          VERSION=${{ github.event.client_payload.version }}
+          # Remove 'v' prefix if present
+          VERSION=${VERSION#v}
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Get TestPyPI package info
+        run: |
+          # Wait a bit for package to be available on test.pypi
+          sleep 30
+
+          # Get TestPyPI package info and extract SHA256 and URL
+          PYPI_INFO=$(curl -s "https://test.pypi.org/pypi/chuck-data/${{ env.VERSION }}/json")
+          SHA256=$(echo "$PYPI_INFO" | jq -r '.urls[] | select(.packagetype=="sdist") | .digests.sha256')
+          URL=$(echo "$PYPI_INFO" | jq -r '.urls[] | select(.packagetype=="sdist") | .url')
+
+          # If SHA256 or URL is empty or null, fail
+          if [ -z "$SHA256" ] || [ "$SHA256" = "null" ]; then
+            echo "Failed to get SHA256 from test.pypi for version ${{ env.VERSION }}"
+            echo "Package may not be available yet or version doesn't exist"
+            exit 1
+          fi
+
+          if [ -z "$URL" ] || [ "$URL" = "null" ]; then
+            echo "Failed to get URL from test.pypi for version ${{ env.VERSION }}"
+            exit 1
+          fi
+
+          echo "SHA256=$SHA256" >> "$GITHUB_ENV"
+          echo "URL=$URL" >> "$GITHUB_ENV"
+
+      - name: Update Formula
+        run: |
+          sed -i "s/version \".*\"/version \"${{ env.VERSION }}\"/" Formula/chuck-data-test.rb
+          sed -i "s|url \".*\"|url \"${{ env.URL }}\"|" Formula/chuck-data-test.rb
+          sed -i "s/sha256 \".*\"/sha256 \"${{ env.SHA256 }}\"/" Formula/chuck-data-test.rb
+
+      - name: Validate formula syntax
+        run: |
+          # Check Ruby syntax
+          ruby -c Formula/chuck-data-test.rb
+
+          # Verify TestPyPI package exists
+          curl -f "https://test.pypi.org/pypi/chuck-data/${{ env.VERSION }}/json" > /dev/null
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/chuck-data-test.rb
+          git commit -m "Update chuck-data-test to ${{ env.VERSION }}"
+          git push origin test-pypi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
