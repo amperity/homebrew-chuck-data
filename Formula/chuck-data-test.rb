@@ -3,9 +3,9 @@ class ChuckDataTest < Formula
 
   desc "AI-powered customer data engineering assistant for Databricks (TEST VERSION from test.pypi)"
   homepage "https://github.com/amperity/chuck-data"
-  version "0.4.6"
-  url "https://test-files.pythonhosted.org/packages/b5/b8/51297e6c4805335896b8998fc1c3ede1d80636dc97935f81edbd3493788d/chuck_data-0.4.6.tar.gz"
-  sha256 "371cd0b493ecb45370a9ae3c124bd3149c8ba139792e36c7575fd0d45841081e"
+  version "0.4.7"
+  url "https://test-files.pythonhosted.org/packages/02/64/766c46fffade854802373e2610e5cd63da4058c9eba37d323b9f822f3675/chuck_data-0.4.7.tar.gz"
+  sha256 "b72b53c7cce1579c5dac55cb8feb78ca8a71d63898ae34519e8b961fdfeac32b"
   license "Apache-2.0"
 
   depends_on "python@3.12"
