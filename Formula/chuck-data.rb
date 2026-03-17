@@ -3,9 +3,9 @@ class ChuckData < Formula
 
   desc "AI-powered customer data engineering assistant for Databricks"
   homepage "https://github.com/amperity/chuck-data"
-  version "0.4.8"
+  version "0.4.9"
   url "https://files.pythonhosted.org/packages/source/c/chuck-data/chuck_data-#{version}.tar.gz"
-  sha256 "c7c20bf77b488c5eea512d9b1e21e48b381568473581348bce99fd1e41c31de3"
+  sha256 "13d037ea1e348f03e017f15f8e140d341f789c973ef69bfe6e218adf544b132b"
   license "Apache-2.0"
 
   depends_on "python@3.12"
